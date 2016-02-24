@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{centernot}
+\setlength{\parindent}{0in}
+
+\usepackage{color}
+\usepackage{listings}
+\lstset{ %
+    language=C,                % choose the language of the code
+    basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+    numbers=left,                   % where to put the line-numbers
+    numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+    stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+    numbersep=5pt,                  % how far the line-numbers are from the code
+    backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+    showspaces=false,               % show spaces adding particular underscores
+    showstringspaces=false,         % underline spaces within strings
+    showtabs=false,                 % show tabs within strings adding particular underscores
+    frame=single,           % adds a frame around the code
+    tabsize=2,          % sets default tabsize to 2 spaces
+    captionpos=b,           % sets the caption-position to bottom
+    breaklines=true,        % sets automatic line breaking
+    breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+    escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+
+\begin{document}
+
+\title{EE360C: Lab 1}
+\author{Joshua Dong}
+\date{\today}
+\maketitle
+
+\subsection{Existence Proof}
+We will show that a weakly stable matching exists using the Gale-Shapely
+algorithm. First we show that the algorithm terminates and produces a
+matching S. Then we will show that matching is weakly stable.
+\\\\
+All apartments are either paired or free. If, by way of contradiction, a
+tenant applies to all apartments but is rejected by all of them, then all the
+apartments must be paired. Since there are an equal number of tenants and
+apartments and no tenants has two apartments, this would imply all tenants
+have found an apartment, a contradiction. Thus the Gale-Shapely algorithm
+always produces a matching.
+\\\\
+Each tenant proposes one every round of matching, and never applies to the
+same apartment twice. Therefore there cannot be more than $n^2$ rounds. Then
+the algorithm terminates.
+\\\\
+On termination of the algorithm, let the resultant matching be S. If a tenant
+prefers another apartment to their current apartment, then they must have been
+rejected by that apartment previously. If they were rejected by an apartment,
+then that apartment must have been paired with a tenant the landlord preferred
+more. Then that apartment does not prefer the tenant over its current tenant.
+Since this argument applies to all tenants, we conclude that no unstable
+matchings exist. Then the matching is weakly stable.
+
+\newpage
+
+\subsection{Algorithm}
+We provide the algorithm used in the previous section:
+
+\begin{lstlisting}
+function stableMatching (tenant[] Tenants, apartment[] Apartments) {
+    initialize all tenants and apartments to free
+    while there exists a free tenant T {
+        A_t = top choice apartment for T not yet applied to
+        if A_t is free
+            (T, A_t) become a match
+        else
+            let T' be the tenant of A_t in the preexisting matching (T', A_t)
+            if A_t prefers T to T'
+                T' becomes free
+                (T, A_t) become engaged 
+            else
+                (T', A_t) remain engaged
+                A_t is removed from the list of choices for T
+    }
+}
+\end{lstlisting}
+
+\subsection{Correctness}
+
+\subsection{Runtime Complexity}
+
+\subsection{Brute Force}
+
+\end{document}
