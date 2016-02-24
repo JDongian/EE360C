@@ -45,8 +45,8 @@ have found an apartment, a contradiction. Thus the Gale-Shapely algorithm
 always produces a matching.
 \\\\
 Each tenant proposes one every round of matching, and never applies to the
-same apartment twice. Therefore there cannot be more than $n^2$ rounds. Then
-the algorithm terminates.
+same apartment twice. Therefore there cannot be more than $n^2$ rounds, where
+$n$ is the number of apartments or tenants. Then the algorithm terminates.
 \\\\
 On termination of the algorithm, let the resultant matching be S. If a tenant
 prefers another apartment to their current apartment, then they must have been
@@ -56,34 +56,54 @@ more. Then that apartment does not prefer the tenant over its current tenant.
 Since this argument applies to all tenants, we conclude that no unstable
 matchings exist. Then the matching is weakly stable.
 
-\newpage
 
+\newpage
 \subsection{Algorithm}
 We provide the algorithm used in the previous section:
 
 \begin{lstlisting}
-function stableMatching (tenant[] Tenants, apartment[] Apartments) {
+function stableMatching (tenant[] Tenants, apartment[] Apartments):
     initialize all tenants and apartments to free
-    while there exists a free tenant T {
+    while there exists a free tenant T:
         A_t = top choice apartment for T not yet applied to
-        if A_t is free
+        if A_t is free:
             (T, A_t) become a match
-        else
+        else:
             let T' be the tenant of A_t in the preexisting matching (T', A_t)
-            if A_t prefers T to T'
+            if A_t prefers T to T':
                 T' becomes free
                 (T, A_t) become engaged 
-            else
+            else:
                 (T', A_t) remain engaged
                 A_t is removed from the list of choices for T
-    }
-}
 \end{lstlisting}
 
+
 \subsection{Correctness}
+Each tenant proposes at most once every round of matching, and never applies
+to the same apartment twice. Therefore there cannot be more than $n^2$ rounds,
+where $n$ is the number of apartments or tenants. Then the algorithm
+terminates since $n^2$ is a finite upper bound.
+\\\\
+We follow the same steps as taken in Existence Proof section. Since our
+algorithm is the tenant-optimal Gale-Shapely algorithm, we know that the
+resultant matching is weakly stable.
+\\\\
+Our program terminates and always produces correct output. Therefore, it is 
+totally correct.
+
 
 \subsection{Runtime Complexity}
+We already showed that our program is bounded by $n^2$ where $n$ is the number
+of apartments or tenants. Then our program is $O(n^2)$. We also know that our
+algorithm is also bounded below by $n$ since each tenant must find a match and
+at minimum only applies to one apartment. Thus our proposal accurately
+captures the runtime complexity of our program.
 
 \subsection{Brute Force}
+In a brute force solution, we would produce all matchings and filter for
+stable matchings. There are $n^2$ matchings and this would always take
+$n^2$ checks where $n$ is the number of apartments or tenants. Thus the
+runtime complexity for the brute force algorithm is $O(n^2)$.
 
 \end{document}
