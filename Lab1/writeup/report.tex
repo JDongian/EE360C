@@ -2,28 +2,10 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{centernot}
+\usepackage{algpseudocode}
+%\usepackage{fullpage}
+\addtolength{\voffset}{-60px}
 \setlength{\parindent}{0in}
-
-\usepackage{color}
-\usepackage{listings}
-\lstset{ %
-    language=C,                % choose the language of the code
-    basicstyle=\footnotesize,       % the size of the fonts that are used for the code
-    numbers=left,                   % where to put the line-numbers
-    numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
-    stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
-    numbersep=5pt,                  % how far the line-numbers are from the code
-    backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
-    showspaces=false,               % show spaces adding particular underscores
-    showstringspaces=false,         % underline spaces within strings
-    showtabs=false,                 % show tabs within strings adding particular underscores
-    frame=single,           % adds a frame around the code
-    tabsize=2,          % sets default tabsize to 2 spaces
-    captionpos=b,           % sets the caption-position to bottom
-    breaklines=true,        % sets automatic line breaking
-    breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
-    escapeinside={\%*}{*)}          % if you want to add a comment within your code
-}
 
 \begin{document}
 
@@ -34,76 +16,84 @@
 
 \subsection{Existence Proof}
 We will show that a weakly stable matching exists using the Gale-Shapely
-algorithm. First we show that the algorithm terminates and produces a
-matching S. Then we will show that matching is weakly stable.
+algorithm where landlords will reject applicant tenants of equal preference if
+their apartment is already paired. First we show that the algorithm terminates
+and produces a matching $S$. Then we will show that $S$ is weakly stable.
 \\\\
-All apartments are either paired or free. If, by way of contradiction, a
-tenant applies to all apartments but is rejected by all of them, then all the
-apartments must be paired. Since there are an equal number of tenants and
-apartments and no tenants has two apartments, this would imply all tenants
-have found an apartment, a contradiction. Thus the Gale-Shapely algorithm
-always produces a matching.
+All apartments are either paired or free. Suppose a tenant applies to all
+apartments but is rejected every time. Then all apartments must be paired.
+Since the number of tenants and apartments are equal and no tenant has
+two apartments, this would imply all tenants have found an apartment,
+a contradiction. Thus our algorithm always produces a valid matching.
 \\\\
-Each tenant proposes one every round of matching, and never applies to the
-same apartment twice. Therefore there cannot be more than $n^2$ rounds, where
-$n$ is the number of apartments or tenants. Then the algorithm terminates.
+Let there be $n$ apartments and tenants. Then the number of matchings is
+$n^2$, the number of edges of a complete bipartate graph with edges
+representing matchings. Each round of our algorithm eliminates one edge.
+$n^2$ is finite. Then our algorithm terminates.
 \\\\
-On termination of the algorithm, let the resultant matching be S. If a tenant
-prefers another apartment to their current apartment, then they must have been
-rejected by that apartment previously. If they were rejected by an apartment,
-then that apartment must have been paired with a tenant the landlord preferred
-more. Then that apartment does not prefer the tenant over its current tenant.
-Since this argument applies to all tenants, we conclude that no unstable
-matchings exist. Then the matching is weakly stable.
+Let the resultng match of our algorithm be $S$. If an arbitrary tenant prefers
+another apartment to their current apartment, then they must have been
+rejected by that apartment previously. If they were rejected, then their
+preferred apartment must be paired with a tenant the landlord preferred
+equally or more. Then that apartment does not prefer the tenant over its
+current tenant. Since the selected tenants was arbitrary, we conclude that
+no (unstable matchings) exist. Then we showed the existance of a weakly stable
+matching for any $n$ apartments and tenants.
 
 
 \newpage
 \subsection{Algorithm}
 We provide the algorithm used in the previous section:
 
-\begin{lstlisting}
-function stableMatching (tenant[] Tenants, apartment[] Apartments):
-    initialize all tenants and apartments to free
-    while there exists a free tenant T:
-        A_t = top choice apartment for T not yet applied to
-        if A_t is free:
-            (T, A_t) become a match
-        else:
-            let T' be the tenant of A_t in the preexisting matching (T', A_t)
-            if A_t prefers T to T':
-                T' becomes free
-                (T, A_t) become engaged 
-            else:
-                (T', A_t) remain engaged
-                A_t is removed from the list of choices for T
-\end{lstlisting}
+\begin{algorithmic}
+\While {$\exists \> T$ where $T$ is free}
+    \State {$A \gets$ top choice apartment for $T$}
+    \If {$A$ is free}
+        \State {$(T, A)$ become a match}
+    \Else
+        \State {$T' \gets$ match for $A$}
+        \If {$A$ prefers $T$ to $T'$}
+            \State {$T'$ becomes free}
+            \State {$(T, A)$ become a match}
+        \EndIf
+    \EndIf
+    \State {$A$ is removed from the list of choices for $T$}
+\EndWhile
+\end{algorithmic}
 
 
 \subsection{Correctness}
-Each tenant proposes at most once every round of matching, and never applies
-to the same apartment twice. Therefore there cannot be more than $n^2$ rounds,
-where $n$ is the number of apartments or tenants. Then the algorithm
-terminates since $n^2$ is a finite upper bound.
-\\\\
-We follow the same steps as taken in Existence Proof section. Since our
-algorithm is the tenant-optimal Gale-Shapely algorithm, we know that the
-resultant matching is weakly stable.
+We already established that our algorithm terminates. Since our algorithm is
+the tenant-optimal Gale-Shapely algorithm, we know that the resultant matching
+of our algorithm is weakly stable as proven in the Existence Proof section. 
 \\\\
 Our program terminates and always produces correct output. Therefore, it is 
 totally correct.
 
 
 \subsection{Runtime Complexity}
-We already showed that our program is bounded by $n^2$ where $n$ is the number
-of apartments or tenants. Then our program is $O(n^2)$. We also know that our
-algorithm is also bounded below by $n$ since each tenant must find a match and
-at minimum only applies to one apartment. Thus our proposal accurately
-captures the runtime complexity of our program.
+We already showed that the problem is bounded by $n^2$ possible matchings. Our
+algorithm always removes a possible matching in the last statement in the
+while loop. Then there are a maximum of $n^2$ iterations of our loop.
+\\\\
+Inside the while loop, there are no other loops since all of our checks and
+statements are $O(1)$: checking if a given apartment is free is $O(1)$,
+getting the match of a given apartment is $O(1)$ with properly implemented
+data structures, preference checking is $O(1)$, and pairing or unpairing is
+$O(1)$. Of course, we are using sane data structures with match data stored
+with each of the tenants and apartments.
+\\\\
+Since our loop iterates at most $n^2$ times and each iteration of the loop
+costs at most $O(1)$ lookups, deletes, or assignments, we conclude that our
+algorithm is $O(n^2)$.
+
 
 \subsection{Brute Force}
 In a brute force solution, we would produce all matchings and filter for
-stable matchings. There are $n^2$ matchings and this would always take
-$n^2$ checks where $n$ is the number of apartments or tenants. Thus the
-runtime complexity for the brute force algorithm is $O(n^2)$.
+stable matchings. There are $n^2$ matchings where $n$ is the number of
+apartments or tenants because this is the number of edges in a complete
+bipartate graph of parameters $n$ and $n$. Since we need only check each
+edge once, a brute force algorithm would be $O(n^2)$ checks.
+
 
 \end{document}
