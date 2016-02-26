@@ -1,9 +1,10 @@
 /*
- * Name: <your name>
- * EID: <your EID>
+ * Name: Joshua Dong
+ * EID: jid295
  */
 
 import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -60,6 +61,9 @@ public class Program1 extends AbstractProgram1 {
         // Bimap of Tenant/Apartment relationships
         HashMap<Apartment, Tenant> atMap = new HashMap<Apartment, Tenant>();
         HashMap<Tenant, Apartment> taMap = new HashMap<Tenant, Apartment>();
+       
+        if (g == null)
+            return false;
 
         setupMaps(g, alMap, atMap, taMap);
 
@@ -108,6 +112,61 @@ public class Program1 extends AbstractProgram1 {
      * 
      * @return A stable Matching.
      */
-    public Matching stableMatchingGaleShapley(Matching given_matching) {
+    public Matching stableMatchingGaleShapley(Matching g) {
+        ArrayDeque<Tenant> freeTenants = new ArrayDeque<Tenant>();
+        HashMap<Apartment, Landlord> alMap =
+            new HashMap<Apartment, Landlord>();
+        // Bimap of Tenant/Apartment relationships
+        HashMap<Apartment, Tenant> atMap = new HashMap<Apartment, Tenant>();
+        HashMap<Tenant, Apartment> taMap = new HashMap<Tenant, Apartment>();
+
+        for (int landlord = 0; landlord < g.getLandlordCount(); ++landlord) {
+            for (Integer apt : g.getLandlordOwners().get(landlord)) {
+                alMap.put(new Apartment(apt), new Landlord(landlord, g));
+            }
+        }
+
+        for (int t = 0; t < g.getTenantCount(); ++t) {
+            Tenant tenant = new Tenant(t, g);
+            tenant.resetChoices();
+            freeTenants.offer(tenant);
+        }
+
+        while (!freeTenants.isEmpty()) {
+            Tenant tenant = freeTenants.pop();
+            Apartment apartment = tenant.nextChoice();
+
+            // Check if the apartment is unpaired
+            if (atMap.get(apartment) == null) {
+                atMap.put(apartment, tenant);
+                taMap.put(tenant, apartment);
+            } else {
+                Tenant otherTenant = atMap.get(apartment);
+                Landlord lrd = alMap.get(apartment);
+                if (lrd.getRank(tenant) < lrd.getRank(otherTenant)) {
+                    atMap.remove(apartment);
+                    taMap.remove(tenant);
+                    freeTenants.offer(otherTenant);
+
+                    atMap.put(apartment, tenant);
+                    taMap.put(tenant, apartment);
+                } else {
+                    freeTenants.push(tenant);
+                }
+            }
+        }
+
+        // Store our Bimap results into a new Matching object.
+        ArrayList<Integer> results = new ArrayList<Integer>();
+        for (Integer t = 0; t < g.getTenantCount(); t++) {
+            Tenant tenant = new Tenant(t, g);
+            Apartment apt = taMap.get(tenant);
+            Integer i = apt.getValue();
+            results.add(i);
+        }
+
+        System.out.println("STATUS: " + isStableMatching(new Matching(g, results)));
+
+        return new Matching(g, results);
     }
 }

@@ -1,3 +1,8 @@
+/*
+ * Name: Joshua Dong
+ * EID: jid295
+ */
+
 import java.util.ArrayList;
 
 public class Apartment {
@@ -13,11 +18,7 @@ public class Apartment {
 
     @Override
     public boolean equals(Object a){
-        if (a instanceof Apartment) {
-            return value == ((Apartment) a).getValue();
-        } else {
-            return super.equals(a);
-        }
+        return value.equals(((Apartment) a).getValue());
     }
 
     @Override
