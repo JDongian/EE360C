@@ -14,11 +14,16 @@
 \date{\today}
 \maketitle
 
-\subsection{Existence Proof}
+\subsection*{a) Existence Proof}
 We will show that a weakly stable matching exists using the Gale-Shapely
 algorithm where landlords will reject applicant tenants of equal preference if
-their apartment is already paired. First we show that the algorithm terminates
-and produces a matching $S$. Then we will show that $S$ is weakly stable.
+their apartment is already paired. It may be shown that our algorithm is
+equivalent to Gale-Shapely but with equal preferences being silently ordered
+according to the order of the apartment or tenant listings.
+\\\\
+To prove the existance of a stable matching, we first show that the algorithm
+terminates and produces a matching $S$. Then we will show that $S$ is weakly
+stable.
 \\\\
 All apartments are either paired or free. Suppose a tenant applies to all
 apartments but is rejected every time. Then all apartments must be paired.
@@ -42,7 +47,7 @@ matching for any $n$ apartments and tenants.
 
 
 \newpage
-\subsection{Algorithm}
+\subsection*{b) Algorithm}
 We provide the algorithm used in the previous section:
 
 \begin{algorithmic}
@@ -62,16 +67,17 @@ We provide the algorithm used in the previous section:
 \end{algorithmic}
 
 
-\subsection{Correctness}
+\subsection*{c) Correctness}
 We already established that our algorithm terminates. Since our algorithm is
-the tenant-optimal Gale-Shapely algorithm, we know that the resultant matching
-of our algorithm is weakly stable as proven in the Existence Proof section. 
+equivalent to the tenant-optimal Gale-Shapely algorithm, we know that the
+resultant matching of our algorithm is weakly stable as proven in the
+Existence Proof section. 
 \\\\
 Our program terminates and always produces correct output. Therefore, it is 
 totally correct.
 
 
-\subsection{Runtime Complexity}
+\subsection*{d) Runtime Complexity}
 We already showed that the problem is bounded by $n^2$ possible matchings. Our
 algorithm always removes a possible matching in the last statement in the
 while loop. Then there are a maximum of $n^2$ iterations of our loop.
@@ -88,12 +94,17 @@ costs at most $O(1)$ lookups, deletes, or assignments, we conclude that our
 algorithm is $O(n^2)$.
 
 
-\subsection{Brute Force}
+\subsection*{e) Brute Force}
 In a brute force solution, we would produce all matchings and filter for
-stable matchings. There are $n^2$ matchings where $n$ is the number of
-apartments or tenants because this is the number of edges in a complete
-bipartate graph of parameters $n$ and $n$. Since we need only check each
-edge once, a brute force algorithm would be $O(n^2)$ checks.
-
+stable matchings.
+\\\\
+Let $n$ be the number of apartments or tenants. There are
+$n!$ different matchings between apartments and tenants. There are $n^2$
+possible pairings between apartments and tenants since this is the number of
+edges in a complete bipartate graph of parameters $n$ and $n$. Since we need
+for each different matching we would need to check all possible pairings to
+validate stability, a brute force algorithm would be require at most
+$O(n! \cdot n^2)$ checks. We may simplify and say the brute force soution is
+$O(n^n)$.
 
 \end{document}
