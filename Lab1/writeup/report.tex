@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{centernot}
 \usepackage{algpseudocode}
+\usepackage{graphicx}
 \usepackage[margin=1in]{geometry}
 \setlength{\parindent}{0in}
 
@@ -112,5 +113,17 @@ edges in a complete bipartite graph of parameters $n$ and $n$. For each
 different matching need to check all possible pairings to validate stability,
 thus a brute force algorithm would be require at most $n! \cdot n^2$ checks.
 We may simplify and say the brute force solution is $O(n^n)$.
+
+
+\newpage
+
+\subsection*{f) Graphs}
+\includegraphics[width=\linewidth]{../graph/plot.png}
+
+Runtime of the brute force algorithm was unstable and increased to very large
+values after the size of the input exceeded 10. The Gale-Shapely algorithm was
+mostly consistent and did not increase much, with at most a weak linear
+increase.
+
 
 \end{document}
