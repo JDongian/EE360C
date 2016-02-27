@@ -4,10 +4,13 @@ OUTPUT = class
 INPUT = ../test/4.in
 
 build:
-	mkdir -p class; $(JC) -d $(OUTPUT) src/*.java
+	mkdir -p class; $(JC) -d $(OUTPUT) src/*.java;
+
+tex:
+	cd writeup; texi2pdf report.tex; 
 
 clean:
-	rm -f class/*.class *.zip
+	rm -f class/*.class *.zip writeup/report.pdf
 
 rung:
 	cd class; java Driver -g $(INPUT)

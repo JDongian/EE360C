@@ -3,8 +3,7 @@
 \usepackage{amsmath}
 \usepackage{centernot}
 \usepackage{algpseudocode}
-%\usepackage{fullpage}
-\addtolength{\voffset}{-60px}
+\usepackage[margin=1in]{geometry}
 \setlength{\parindent}{0in}
 
 \begin{document}
@@ -21,7 +20,7 @@ their apartment is already paired. It may be shown that our algorithm is
 equivalent to Gale-Shapely but with equal preferences being silently ordered
 according to the order of the apartment or tenant listings.
 \\\\
-To prove the existance of a stable matching, we first show that the algorithm
+To prove the existence of a stable matching, we first show that the algorithm
 terminates and produces a matching $S$. Then we will show that $S$ is weakly
 stable.
 \\\\
@@ -31,19 +30,22 @@ Since the number of tenants and apartments are equal and no tenant has
 two apartments, this would imply all tenants have found an apartment,
 a contradiction. Thus our algorithm always produces a valid matching.
 \\\\
-Let there be $n$ apartments and tenants. Then the number of matchings is
-$n^2$, the number of edges of a complete bipartate graph with edges
+Let there be $n$ apartments and tenants. Then the number of pairings is
+$n^2$, the number of edges of a complete bipartite graph with edges
 representing matchings. Each round of our algorithm eliminates one edge.
-$n^2$ is finite. Then our algorithm terminates.
+$n^2$ is finite. Thus our algorithm terminates.
 \\\\
-Let the resultng match of our algorithm be $S$. If an arbitrary tenant prefers
+Let the resulting match of our algorithm be $S$. If an arbitrary tenant prefers
 another apartment to their current apartment, then they must have been
 rejected by that apartment previously. If they were rejected, then their
 preferred apartment must be paired with a tenant the landlord preferred
 equally or more. Then that apartment does not prefer the tenant over its
-current tenant. Since the selected tenants was arbitrary, we conclude that
-no (unstable matchings) exist. Then we showed the existance of a weakly stable
-matching for any $n$ apartments and tenants.
+current tenant. Since the selected tenant was arbitrary, this applies to all
+tenants. Then we conclude that no unstable matchings exist and $S$ is weakly
+stable.
+\\\\
+Since our program produces a weakly stable matching and always terminates,
+there must exist a weakly stable matching for any $n$ apartments and tenants.
 
 
 \newpage
@@ -53,16 +55,16 @@ We provide the algorithm used in the previous section:
 \begin{algorithmic}
 \While {$\exists \> T$ where $T$ is free}
     \State {$A \gets$ top choice apartment for $T$}
+    \State {$A$ is removed from the list of choices for $T$}
     \If {$A$ is free}
-        \State {$(T, A)$ become a match}
+        \State {$(T, A)$ are paired}
     \Else
         \State {$T' \gets$ match for $A$}
         \If {$A$ prefers $T$ to $T'$}
-            \State {$T'$ becomes free}
-            \State {$(T, A)$ become a match}
+            \State {$T'$ is unpaired from $A$}
+            \State {$(T, A)$ are paired}
         \EndIf
     \EndIf
-    \State {$A$ is removed from the list of choices for $T$}
 \EndWhile
 \end{algorithmic}
 
@@ -84,14 +86,19 @@ while loop. Then there are a maximum of $n^2$ iterations of our loop.
 \\\\
 Inside the while loop, there are no other loops since all of our checks and
 statements are $O(1)$: checking if a given apartment is free is $O(1)$,
-getting the match of a given apartment is $O(1)$ with properly implemented
-data structures, preference checking is $O(1)$, and pairing or unpairing is
-$O(1)$. Of course, we are using sane data structures with match data stored
-with each of the tenants and apartments.
+getting the match of a given apartment is $O(1)$, preference checking is
+$O(1)$, and pairing or unpairing is $O(1).$\footnote{In our implementation,
+we use HashMaps, which are $O(n)$ if there are collisions for every lookup.
+However, this is so rare that $\Theta(1)$ is a more accurate representation
+of HashMap lookups and insertions.} We accomplish $O(1)$ execution per
+iteration with the creation of maps and bimaps before we enter the loop.
 \\\\
 Since our loop iterates at most $n^2$ times and each iteration of the loop
 costs at most $O(1)$ lookups, deletes, or assignments, we conclude that our
-algorithm is $O(n^2)$.
+algorithm is $O(n^2).$\footnote{Due to our use of HashMap as explained above,
+$O(n^3)$ is the actual complexity of our algorithm. $O(n^2)$ is a
+more accurate upper bound, practically. In any case, our algorithm is of
+polynomial time complexity.}
 
 
 \subsection*{e) Brute Force}
@@ -99,12 +106,11 @@ In a brute force solution, we would produce all matchings and filter for
 stable matchings.
 \\\\
 Let $n$ be the number of apartments or tenants. There are
-$n!$ different matchings between apartments and tenants. There are $n^2$
+$n!$ possible unique matchings between apartments and tenants. There are $n^2$
 possible pairings between apartments and tenants since this is the number of
-edges in a complete bipartate graph of parameters $n$ and $n$. Since we need
-for each different matching we would need to check all possible pairings to
-validate stability, a brute force algorithm would be require at most
-$O(n! \cdot n^2)$ checks. We may simplify and say the brute force soution is
-$O(n^n)$.
+edges in a complete bipartite graph of parameters $n$ and $n$. For each
+different matching need to check all possible pairings to validate stability,
+thus a brute force algorithm would be require at most $n! \cdot n^2$ checks.
+We may simplify and say the brute force solution is $O(n^n)$.
 
 \end{document}

@@ -38,16 +38,18 @@ public class Program1 extends AbstractProgram1 {
         return result + arr.get(arr.size() - 1) + "]";
     }
 
-    private static void setupMaps(Matching m,
-                           HashMap<Apartment, Landlord> alMap,
-                           HashMap<Apartment, Tenant> atMap,
-                           HashMap<Tenant, Apartment> taMap) {
+    private static void initOwners(Matching m,
+                                   HashMap<Apartment, Landlord> alMap) {
         for (int landlord = 0; landlord < m.getLandlordCount(); ++landlord) {
             for (Integer apt : m.getLandlordOwners().get(landlord)) {
                 alMap.put(new Apartment(apt), new Landlord(landlord, m));
             }
         }
+    }
 
+    private static void initBimap(Matching m,
+                                  HashMap<Apartment, Tenant> atMap,
+                                  HashMap<Tenant, Apartment> taMap) {
         for (int tenant = 0; tenant < m.getTenantCount(); ++tenant) {
             Integer apartment = m.getTenantMatching().get(tenant);
             atMap.put(new Apartment(apartment), new Tenant(tenant, m));
@@ -62,10 +64,8 @@ public class Program1 extends AbstractProgram1 {
         HashMap<Apartment, Tenant> atMap = new HashMap<Apartment, Tenant>();
         HashMap<Tenant, Apartment> taMap = new HashMap<Tenant, Apartment>();
        
-        if (g == null)
-            return false;
-
-        setupMaps(g, alMap, atMap, taMap);
+        initOwners(g, alMap);
+        initBimap(g, atMap, taMap);
 
         for (int i = 0; i < g.getTenantCount(); ++i) {
             Tenant tenant = new Tenant(i, g);
@@ -89,19 +89,6 @@ public class Program1 extends AbstractProgram1 {
                 }
             }
         }
-/*
-        // DEBUG
-        System.out.println("Apartment Ownership:");  
-        for (Apartment a : alMap.keySet()){
-            System.out.println(a + " " + alMap.get(a));  
-        }
-
-        // DEBUG
-        System.out.println("Bimap Relations:");  
-        for (Apartment a : atMap.keySet()){
-            System.out.println(a + " " + atMap.get(a));  
-        }
-*/
         return true;
     }
 
@@ -120,11 +107,7 @@ public class Program1 extends AbstractProgram1 {
         HashMap<Apartment, Tenant> atMap = new HashMap<Apartment, Tenant>();
         HashMap<Tenant, Apartment> taMap = new HashMap<Tenant, Apartment>();
 
-        for (int landlord = 0; landlord < g.getLandlordCount(); ++landlord) {
-            for (Integer apt : g.getLandlordOwners().get(landlord)) {
-                alMap.put(new Apartment(apt), new Landlord(landlord, g));
-            }
-        }
+        initOwners(g, alMap);
 
         for (int t = 0; t < g.getTenantCount(); ++t) {
             Tenant tenant = new Tenant(t, g);
@@ -159,13 +142,8 @@ public class Program1 extends AbstractProgram1 {
         // Store our Bimap results into a new Matching object.
         ArrayList<Integer> results = new ArrayList<Integer>();
         for (Integer t = 0; t < g.getTenantCount(); t++) {
-            Tenant tenant = new Tenant(t, g);
-            Apartment apt = taMap.get(tenant);
-            Integer i = apt.getValue();
-            results.add(i);
+            results.add(taMap.get(new Tenant(t, g)).getValue());
         }
-
-        System.out.println("STATUS: " + isStableMatching(new Matching(g, results)));
 
         return new Matching(g, results);
     }
