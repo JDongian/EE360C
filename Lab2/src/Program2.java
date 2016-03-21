@@ -23,7 +23,8 @@ public class Program2 extends VertexNetwork {
        will be useful. 
        DO NOT FORGET to modify the constructors when you 
        add new fields to the Program2 class. */
-    
+    static final ArrayList<Vertex> EMPTY_PATH = new ArrayList<Vertex>();
+
     Program2() {
         super();
     }
@@ -40,14 +41,67 @@ public class Program2 extends VertexNetwork {
         super(transmissionRange, locationFile);
     }
 
+    private ArrayList<Integer> getNeighbors(int center, double range) {
+        //TODO: fix this
+        ArrayList<Integer> neighbors = new ArrayList<Integer>();
+        return neighbors;
+    }
+
+    // TODO: empty location edge case
+    private int getClosest(int source, int sink) {
+        Vertex src = location.get(source);
+        ArrayList<Integer> neighbors = getNeighbors(source, transmissionRange);
+        Vertex dst = location.get(sink);
+        int bestIndex = 0;
+        Vertex bestTarget = location.get(neighbors.get(bestIndex));
+        double bestDistance = dst.distance(bestTarget);
+
+        for (int i = 1; i < neighbors.size(); ++i) {
+            Vertex neighbor = location.get(neighbors.get(i));
+            double distance = dst.distance(neighbor);
+
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestIndex = i;
+                bestTarget = neighbor;
+            }
+        }
+
+        if (dst.distance(src) > dst.distance(bestTarget)) { // TODO: check edge case (==)
+            return bestIndex;
+        } else {
+            return -1;
+        }
+    }
+
+    private ArrayList<Vertex> gpsrPath(int source,
+            int sink,
+            ArrayList<Vertex> path) {
+        if (source == sink) {
+            path.add(location.get(sink));
+            return path;
+        } else {
+            int closestIndex = getClosest(source, sink);
+            if (closestIndex >= 0) {
+                Vertex closestVertex = location.get(closestIndex);
+                path.add(closestVertex);
+                return gpsrPath(closestIndex, sink, path);
+            } else {
+                return EMPTY_PATH;
+            }
+        }
+    }
+
     public ArrayList<Vertex> gpsrPath(int sourceIndex, int sinkIndex) {
         /* This method returns a path from a source at location sourceIndex 
-           and a sink at location sinkIndex using the GPSR algorithm. An empty 
+           and a sink at location sinkIndex using the GPSR algorithm. An empty
            path is returned if the GPSR algorithm fails to find a path. */
-        /* The following code is meant to be a placeholder that simply 
-           returns an empty path. Replace it with your own code that 
-           implements the GPSR algorithm. */
-        return new ArrayList<Vertex>(0);
+        //TODO: check this line
+        setTransmissionRange(1);
+
+        ArrayList<Vertex> start = new ArrayList<Vertex>();
+        start.add(location.get(sourceIndex));
+        return gpsrPath(sourceIndex, sinkIndex, start);
     }
     
     public ArrayList<Vertex> dijkstraPathLatency(int sourceIndex, int sinkIndex) {
