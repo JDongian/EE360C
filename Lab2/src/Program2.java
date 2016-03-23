@@ -1,9 +1,11 @@
 /*
- * Name: <your name>
- * EID: <your EID>
+ * Name: Joshua Dong
+ * EID: jid295
  */
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 /* Your solution goes in this file.
  *
@@ -25,93 +27,190 @@ public class Program2 extends VertexNetwork {
        add new fields to the Program2 class. */
     static final ArrayList<Vertex> EMPTY_PATH = new ArrayList<Vertex>();
 
+    private HashMap<Vertex, HashMap<Vertex, Edge>> hubs;
+
     Program2() {
         super();
+        updateMap();
     }
     
     Program2(String locationFile) {
         super(locationFile);
+        updateMap();
     }
     
     Program2(String locationFile, double transmissionRange) {
         super(locationFile, transmissionRange);
+        updateMap();
     }
     
     Program2(double transmissionRange, String locationFile) {
         super(transmissionRange, locationFile);
+        updateMap();
     }
 
-    private ArrayList<Integer> getNeighbors(int center, double range) {
-        //TODO: fix this
-        ArrayList<Integer> neighbors = new ArrayList<Integer>();
-        return neighbors;
+    public void setTransmissionRange(double transmissionRange) {
+        this.transmissionRange = transmissionRange;
+        updateMap();
+    }
+    
+    private void updateMap() {
+        hubs = new HashMap<Vertex, HashMap<Vertex, Edge>>();
+
+        for (Vertex v: location) {
+            hubs.put(v, new HashMap<Vertex, Edge>());
+        }
+
+        for (Edge e: edges) {
+            Vertex u = location.get(e.getU());
+            Vertex v = location.get(e.getV());
+
+            if (u.distance(v) <= transmissionRange) {
+                hubs.get(u).put(v, e);
+                hubs.get(v).put(u, e);
+            }
+        }
     }
 
-    // TODO: empty location edge case
-    private int getClosest(int source, int sink) {
-        Vertex src = location.get(source);
-        ArrayList<Integer> neighbors = getNeighbors(source, transmissionRange);
-        Vertex dst = location.get(sink);
-        int bestIndex = 0;
-        Vertex bestTarget = location.get(neighbors.get(bestIndex));
-        double bestDistance = dst.distance(bestTarget);
+    private HashMap<Vertex, Edge> getNeighbors(Vertex center) {
+        return hubs.get(center);
+    }
 
-        for (int i = 1; i < neighbors.size(); ++i) {
-            Vertex neighbor = location.get(neighbors.get(i));
-            double distance = dst.distance(neighbor);
+    private Vertex getClosest(Vertex source, Vertex sink) {
+        HashMap<Vertex, Edge> neighbors = getNeighbors(source);
+        Vertex bestTarget = null;
+        double maxDistance = source.distance(sink);
 
-            if (distance < bestDistance) {
-                bestDistance = distance;
-                bestIndex = i;
+        //
+        System.out.println("neighbors: " + neighbors.size());
+
+        for (Vertex neighbor: neighbors.keySet()) {
+            double distance = neighbor.distance(sink);
+    
+            //
+            System.out.println("distance: " + distance);
+            //
+            System.out.println("max distance: " + maxDistance);
+            if (distance < maxDistance) {
+                maxDistance = distance;
                 bestTarget = neighbor;
             }
         }
-
-        if (dst.distance(src) > dst.distance(bestTarget)) { // TODO: check edge case (==)
-            return bestIndex;
-        } else {
-            return -1;
-        }
+        
+        return bestTarget;
     }
 
-    private ArrayList<Vertex> gpsrPath(int source,
-            int sink,
+    private ArrayList<Vertex> gpsrPath(Vertex source, Vertex sink,
             ArrayList<Vertex> path) {
-        if (source == sink) {
-            path.add(location.get(sink));
+        if (source.equals(sink)) {
             return path;
         } else {
-            int closestIndex = getClosest(source, sink);
-            if (closestIndex >= 0) {
-                Vertex closestVertex = location.get(closestIndex);
+            Vertex closestVertex = getClosest(source, sink);
+            if (closestVertex != null) {
                 path.add(closestVertex);
-                return gpsrPath(closestIndex, sink, path);
+                return gpsrPath(closestVertex, sink, path);
             } else {
                 return EMPTY_PATH;
             }
         }
     }
 
+    /* This method returns a path from a source at location sourceIndex 
+       and a sink at location sinkIndex using the GPSR algorithm. An empty
+       path is returned if the GPSR algorithm fails to find a path. */
     public ArrayList<Vertex> gpsrPath(int sourceIndex, int sinkIndex) {
-        /* This method returns a path from a source at location sourceIndex 
-           and a sink at location sinkIndex using the GPSR algorithm. An empty
-           path is returned if the GPSR algorithm fails to find a path. */
-        //TODO: check this line
-        setTransmissionRange(1);
+       //TODO: check this line
+        //setTransmissionRange(1);
 
-        ArrayList<Vertex> start = new ArrayList<Vertex>();
-        start.add(location.get(sourceIndex));
-        return gpsrPath(sourceIndex, sinkIndex, start);
+        ArrayList<Vertex> init = new ArrayList<Vertex>();
+        Vertex start = location.get(sourceIndex);
+        Vertex end = location.get(sinkIndex);
+        init.add(start);
+
+        return gpsrPath(start, end, init);
     }
     
+    private ArrayList<Vertex> nearestTraversal(HashMap<Vertex, Vertex> previous,
+            Vertex start, Vertex end) {
+        return nearestTraversal(previous, start, end, new ArrayList<Vertex>());
+    }
+
+    private ArrayList<Vertex> nearestTraversal(HashMap<Vertex, Vertex> previous,
+            Vertex current, Vertex end,
+            ArrayList<Vertex> path) {
+        if (current == null) {
+            return EMPTY_PATH;
+        } else {
+            path.add(current);
+            if (current.equals(end)) {
+                return path;
+            }
+            return nearestTraversal(previous, previous.get(current), end, path);
+        }
+    }
+
+    public interface Measure {
+        public double distance(Vertex a, Vertex b);
+    }
+
+    private ArrayList<Vertex> dijkstra(ArrayList<Vertex> graph,
+            Vertex source, Vertex sink,
+            Measure measure) {
+        HashMap<Vertex, Double> dist = new HashMap<Vertex, Double>();
+        HashMap<Vertex, Vertex> previous = new HashMap<Vertex, Vertex>();
+
+        for (Vertex v: graph) {
+            dist.put(v, Double.POSITIVE_INFINITY);
+            previous.put(v, null);
+        }
+        dist.put(source, 0.0);
+
+        ArrayList<Vertex> Q = new ArrayList<Vertex>(graph.size());
+        for(Vertex v: graph) {
+            Q.add(v); // TODO: check this (clone?)
+        }
+
+        while (!Q.isEmpty()) {
+            Vertex closest = Q.stream().min((u, v) ->
+                    Double.compare(dist.get(u), dist.get(v))).get();
+
+            if (dist.get(closest) == Double.POSITIVE_INFINITY) {
+                break;
+            }
+            Q.remove(closest);
+            // Vertex does not implement .equals, so this will compare Objects
+            // This should work anyway, since we don't make any new Verticies
+            // and only pass around the references.
+            if (closest.equals(sink)) {
+                break;
+            }
+
+            for (Vertex neighbor: getNeighbors(closest).keySet()) {
+                double alt = dist.get(closest) + measure.distance(closest, neighbor);
+                if (alt < dist.get(neighbor)) {
+                    dist.put(neighbor, alt);
+                    previous.put(neighbor, closest);
+                    //decrease-key neighbor in Q; // TODO: Reorder v in the Queue
+                }
+            }
+        }
+
+        return nearestTraversal(previous, source, sink);
+    }
+
+    /* This method returns a path (shortest in terms of latency) from a source at
+       location sourceIndex and a sink at location sinkIndex using Dijkstra's algorithm.
+       An empty path is returned if Dijkstra's algorithm fails to find a path. */
+    /* The following code is meant to be a placeholder that simply 
+       returns an empty path. Replace it with your own code that 
+       implements Dijkstra's algorithm. */
     public ArrayList<Vertex> dijkstraPathLatency(int sourceIndex, int sinkIndex) {
-        /* This method returns a path (shortest in terms of latency) from a source at
-           location sourceIndex and a sink at location sinkIndex using Dijkstra's algorithm.
-           An empty path is returned if Dijkstra's algorithm fails to find a path. */
-        /* The following code is meant to be a placeholder that simply 
-           returns an empty path. Replace it with your own code that 
-           implements Dijkstra's algorithm. */
-        return new ArrayList<Vertex>(0);
+        Vertex source = location.get(sourceIndex);
+        Vertex sink = location.get(sinkIndex);
+
+        return dijkstra(location, source, sink, (u, v) -> {
+            return hubs.get(u).get(v).getW();
+        });
     }
     
     public ArrayList<Vertex> dijkstraPathHops(int sourceIndex, int sinkIndex) {
@@ -121,7 +220,13 @@ public class Program2 extends VertexNetwork {
         /* The following code is meant to be a placeholder that simply 
            returns an empty path. Replace it with your own code that 
            implements Dijkstra's algorithm. */
-        return new ArrayList<Vertex>(0);
+        Vertex source = location.get(sourceIndex);
+        Vertex sink = location.get(sinkIndex);
+
+        return dijkstra(location, source, sink, (u, v) -> {
+            hubs.get(u).get(v); // this is a horrible assert
+            return 1;
+        });
     }
     
 }

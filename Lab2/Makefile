@@ -12,11 +12,11 @@ tex:
 clean:
 	rm -f class/*.class *.zip writeup/report.pdf
 
-rung:
-	cd class; java Driver -g $(INPUT)
+run:
+	cd class && clear && java Driver ../testInputs/SmallInputGraph.in -t 5 10 15 20 25
 
-runb:
-	cd class; java Driver -b $(INPUT)
+runl:
+	cd class && clear && java Driver ../testInputs/LargeInputGraph.in -t 5 10 15 20 25
 
 output:
 	zip jid295_dong_joshua src/Program1.java src/Tenant.java src/Landlord.java src/Apartment.java writeup/report.pdf
