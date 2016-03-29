@@ -81,16 +81,9 @@ public class Program2 extends VertexNetwork {
         Vertex bestTarget = null;
         double maxDistance = source.distance(sink);
 
-        //
-        System.out.println("neighbors: " + neighbors.size());
-
         for (Vertex neighbor: neighbors.keySet()) {
             double distance = neighbor.distance(sink);
     
-            //
-            System.out.println("distance: " + distance);
-            //
-            System.out.println("max distance: " + maxDistance);
             if (distance < maxDistance) {
                 maxDistance = distance;
                 bestTarget = neighbor;
@@ -119,9 +112,6 @@ public class Program2 extends VertexNetwork {
        and a sink at location sinkIndex using the GPSR algorithm. An empty
        path is returned if the GPSR algorithm fails to find a path. */
     public ArrayList<Vertex> gpsrPath(int sourceIndex, int sinkIndex) {
-       //TODO: check this line
-        //setTransmissionRange(1);
-
         ArrayList<Vertex> init = new ArrayList<Vertex>();
         Vertex start = location.get(sourceIndex);
         Vertex end = location.get(sinkIndex);
@@ -186,11 +176,13 @@ public class Program2 extends VertexNetwork {
             }
 
             for (Vertex neighbor: getNeighbors(closest).keySet()) {
-                double alt = dist.get(closest) + measure.distance(closest, neighbor);
+                double alt = dist.get(closest) + measure.distance(closest,
+                                                                  neighbor);
                 if (alt < dist.get(neighbor)) {
                     dist.put(neighbor, alt);
                     previous.put(neighbor, closest);
-                    //decrease-key neighbor in Q; // TODO: Reorder v in the Queue
+                    // TODO: Reorder v in the Queue
+                    //decrease-key neighbor in Q;
                 }
             }
         }
@@ -213,14 +205,14 @@ public class Program2 extends VertexNetwork {
         });
     }
     
-    public ArrayList<Vertex> dijkstraPathHops(int sourceIndex, int sinkIndex) {
-        /* This method returns a path (shortest in terms of hops) from a source at
-           location sourceIndex and a sink at location sinkIndex using Dijkstra's algorithm.
-           An empty path is returned if Dijkstra's algorithm fails to find a path. */
-        /* The following code is meant to be a placeholder that simply 
-           returns an empty path. Replace it with your own code that 
+    /* This method returns a path (shortest in terms of hops) from a source at
+       location sourceIndex and a sink at location sinkIndex using Dijkstra's algorithm.
+       An empty path is returned if Dijkstra's algorithm fails to find a path. */
+    /* The following code is meant to be a placeholder that simply 
+       returns an empty path. Replace it with your own code that 
            implements Dijkstra's algorithm. */
-        Vertex source = location.get(sourceIndex);
+    public ArrayList<Vertex> dijkstraPathHops(int sourceIndex, int sinkIndex) {
+       Vertex source = location.get(sourceIndex);
         Vertex sink = location.get(sinkIndex);
 
         return dijkstra(location, source, sink, (u, v) -> {
@@ -230,4 +222,3 @@ public class Program2 extends VertexNetwork {
     }
     
 }
-
