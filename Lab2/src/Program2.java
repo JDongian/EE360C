@@ -121,22 +121,19 @@ public class Program2 extends VertexNetwork {
     }
     
     private ArrayList<Vertex> nearestTraversal(HashMap<Vertex, Vertex> previous,
-            Vertex start, Vertex end) {
-        return nearestTraversal(previous, start, end, new ArrayList<Vertex>());
-    }
+            Vertex source, Vertex sink) {
+        ArrayList<Vertex> path = new ArrayList<Vertex>();
+        Vertex current = sink;
 
-    private ArrayList<Vertex> nearestTraversal(HashMap<Vertex, Vertex> previous,
-            Vertex current, Vertex end,
-            ArrayList<Vertex> path) {
-        if (current == null) {
-            return EMPTY_PATH;
-        } else {
+         while (current != source) {
             path.add(current);
-            if (current.equals(end)) {
-                return path;
+            current = previous.get(current);
+            if (current == null) {
+                return EMPTY_PATH;
             }
-            return nearestTraversal(previous, previous.get(current), end, path);
         }
+
+        return path;
     }
 
     public interface Measure {
@@ -161,28 +158,28 @@ public class Program2 extends VertexNetwork {
         }
 
         while (!Q.isEmpty()) {
-            Vertex closest = Q.stream().min((u, v) ->
-                    Double.compare(dist.get(u), dist.get(v))).get();
+            Vertex u = Q.stream().min((a, b) ->
+                    Double.compare(dist.get(a), dist.get(b))).get();
 
-            if (dist.get(closest) == Double.POSITIVE_INFINITY) {
+            if (dist.get(u) == Double.POSITIVE_INFINITY) {
                 break;
             }
-            Q.remove(closest);
+            Q.remove(u);
             // Vertex does not implement .equals, so this will compare Objects
             // This should work anyway, since we don't make any new Verticies
             // and only pass around the references.
-            if (closest.equals(sink)) {
+            if (u.equals(sink)) {
                 break;
             }
 
-            for (Vertex neighbor: getNeighbors(closest).keySet()) {
-                double alt = dist.get(closest) + measure.distance(closest,
-                                                                  neighbor);
-                if (alt < dist.get(neighbor)) {
-                    dist.put(neighbor, alt);
-                    previous.put(neighbor, closest);
-                    // TODO: Reorder v in the Queue
-                    //decrease-key neighbor in Q;
+            for (Vertex v: getNeighbors(u).keySet()) {
+                double alt = dist.get(u) + measure.distance(u, v);
+
+                if (alt < dist.get(v)) {
+                    dist.put(v, alt);
+                    previous.put(v, u);
+                    // Reorder v in the Queue
+                    // decrease-key neighbor in Q;
                 }
             }
         }
@@ -220,5 +217,4 @@ public class Program2 extends VertexNetwork {
             return 1;
         });
     }
-    
 }
