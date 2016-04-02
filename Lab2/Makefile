@@ -18,6 +18,9 @@ run:
 runl:
 	cd class && clear && java Driver ../testInputs/LargeInputGraph.in -t 5 10 15 20 25
 
+run8:
+	cd class && clear && java Driver ../testInputs/80_80_100.in -t 10
+
 output:
 	zip jid295_dong_joshua src/Program1.java src/Tenant.java src/Landlord.java src/Apartment.java writeup/report.pdf
 

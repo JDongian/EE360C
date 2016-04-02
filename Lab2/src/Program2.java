@@ -213,7 +213,7 @@ public class Program2 extends VertexNetwork {
         Vertex sink = location.get(sinkIndex);
 
         return dijkstra(location, source, sink, (u, v) -> {
-            hubs.get(u).get(v); // this is a horrible assert
+            //hubs.get(u).get(v); // this is a horrible assert
             return 1;
         });
     }
